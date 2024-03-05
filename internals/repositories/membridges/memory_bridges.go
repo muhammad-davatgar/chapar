@@ -1,4 +1,4 @@
-package repositories
+package membridges
 
 import (
 	"chapar/internals/core/domain"
