@@ -1,4 +1,4 @@
-package ws
+package main
 
 import (
 	messangerservice "chapar/internals/core/services/messanger"
@@ -11,14 +11,14 @@ import (
 func main() {
 	msgService := messangerservice.NewMessangerService()
 
-	gorillaService := gorilla.NewGorillaService
+	gorillaService := gorilla.NewGorillaService(msgService)
 
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		serveWs(hub, w, r)
+		gorillaService.ServeWs(w, r)
 	})
 
 	server := &http.Server{
-		Addr:              *addr,
+		Addr:              ":8080",
 		ReadHeaderTimeout: 3 * time.Second,
 	}
 	err := server.ListenAndServe()
