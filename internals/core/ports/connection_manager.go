@@ -2,7 +2,7 @@ package ports
 
 import "chapar/internals/core/domain"
 
-type Bridges interface {
-	Send(message domain.Message) error
-	Listener(id uint) chan domain.Message
+type InnerBridges interface {
+	Register(domain.User) chan domain.Message
+	UnRegister(domain.User)
 }
