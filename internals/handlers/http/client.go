@@ -1,15 +1,15 @@
-package gorilla
+package http
 
 import (
 	"chapar/internals/core/domain"
 	"chapar/internals/core/ports"
 	"encoding/json"
 	"log"
-	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/labstack/echo/v4"
 )
 
 const (
@@ -29,22 +29,22 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-type GorillaServer struct {
+type HTTPServer struct {
 	innerBridges ports.InnerBridges
 }
 
-func NewGorillaService(bridges ports.InnerBridges) GorillaServer {
-	return GorillaServer{innerBridges: bridges}
+func NewHttpService(bridges ports.InnerBridges) HTTPServer {
+	return HTTPServer{innerBridges: bridges}
 }
 
-type GorillaConnection struct {
+type WebsocketConnection struct {
 	id        uint
 	mailman   chan domain.Message
 	conn      *websocket.Conn
 	terminate func(domain.User)
 }
 
-func (c *GorillaConnection) readPump() {
+func (c *WebsocketConnection) readPump() {
 	defer func() {
 		c.terminate(domain.User{ID: c.id})
 		c.conn.Close()
@@ -70,7 +70,7 @@ func (c *GorillaConnection) readPump() {
 	}
 }
 
-func (c *GorillaConnection) writePump(incomingMessages chan domain.Message) {
+func (c *WebsocketConnection) writePump(incomingMessages chan domain.Message) {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
@@ -114,24 +114,23 @@ func (c *GorillaConnection) writePump(incomingMessages chan domain.Message) {
 	}
 }
 
-// serveWs handles websocket requests from the peer.
-func (gs *GorillaServer) ServeWs(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
+func (gs *HTTPServer) ServeWs(c echo.Context) error {
+	conn, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		log.Println(err)
-		return
+		return echo.ErrInternalServerError
 	}
 
 	rciver := make(chan domain.Message)
-	id, _ := strconv.ParseInt(r.Header["Id"][0], 10, 0) // TODO : error handling
-	client := &GorillaConnection{
+	id, _ := strconv.ParseInt(c.Request().Header["Id"][0], 10, 0) // TODO : error handling
+	client := &WebsocketConnection{
 		id:        uint(id),
 		mailman:   gs.innerBridges.Register(domain.User{ID: uint(id), Reciver: rciver}),
 		conn:      conn,
 		terminate: gs.innerBridges.UnRegister}
 
-	// Allow collection of memory referenced by the caller by doing all work in
-	// new goroutines.
 	go client.writePump(rciver)
 	go client.readPump()
+
+	return nil
 }
