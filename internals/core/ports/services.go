@@ -10,4 +10,7 @@ type MessangerServices interface {
 	Listen() chan domain.Message
 }
 
-type AuthenticationServices interface{}
+type UserDB interface {
+	Create(domain.User) (domain.User, error)
+	GetUser(domain.Credentials) (domain.User, error)
+}

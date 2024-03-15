@@ -15,9 +15,9 @@ func NewMessangerService() *MessangerService {
 	return &MessangerService{bridges: hub}
 }
 
-func (s *MessangerService) Register(user domain.User) chan domain.Message {
+func (s *MessangerService) Register(user domain.HubUser) chan domain.Message {
 	return s.bridges.Register(user)
 }
-func (s *MessangerService) UnRegister(user domain.User) {
+func (s *MessangerService) UnRegister(user domain.HubUser) {
 	s.bridges.UnRegister(user)
 }

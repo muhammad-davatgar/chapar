@@ -3,6 +3,6 @@ package ports
 import "chapar/internals/core/domain"
 
 type InnerBridges interface {
-	Register(domain.User) chan domain.Message
-	UnRegister(domain.User)
+	Register(domain.HubUser) chan domain.Message
+	UnRegister(domain.HubUser)
 }

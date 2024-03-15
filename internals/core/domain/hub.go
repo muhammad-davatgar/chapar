@@ -12,12 +12,12 @@ func NewHub() *Hub {
 	}
 }
 
-func (h *Hub) Register(user User) chan Message {
+func (h *Hub) Register(user HubUser) chan Message {
 	h.clients[user.ID] = Client{reciver: user.Reciver}
 	return h.mailman
 }
 
-func (h *Hub) UnRegister(user User) {
+func (h *Hub) UnRegister(user HubUser) {
 	delete(h.clients, user.ID)
 }
 

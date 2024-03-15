@@ -41,12 +41,12 @@ type WebsocketConnection struct {
 	id        uint
 	mailman   chan domain.Message
 	conn      *websocket.Conn
-	terminate func(domain.User)
+	terminate func(domain.HubUser)
 }
 
 func (c *WebsocketConnection) readPump() {
 	defer func() {
-		c.terminate(domain.User{ID: c.id})
+		c.terminate(domain.HubUser{ID: c.id})
 		c.conn.Close()
 	}()
 	c.conn.SetReadLimit(maxMessageSize)
@@ -125,7 +125,7 @@ func (gs *HTTPServer) ServeWs(c echo.Context) error {
 	id, _ := strconv.ParseInt(c.Request().Header["Id"][0], 10, 0) // TODO : error handling
 	client := &WebsocketConnection{
 		id:        uint(id),
-		mailman:   gs.innerBridges.Register(domain.User{ID: uint(id), Reciver: rciver}),
+		mailman:   gs.innerBridges.Register(domain.HubUser{ID: uint(id), Reciver: rciver}),
 		conn:      conn,
 		terminate: gs.innerBridges.UnRegister}
 
@@ -134,3 +134,12 @@ func (gs *HTTPServer) ServeWs(c echo.Context) error {
 
 	return nil
 }
+
+// func (s *HTTPServer) SignUp(c echo.Context) error{
+// 	body := CredentialsDTO{}
+// 	err := c.Bind(&body)
+// 	if err != nil {
+// 		return echo.ErrBadRequest
+// 	}
+
+// }
