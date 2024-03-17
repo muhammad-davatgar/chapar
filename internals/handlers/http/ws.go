@@ -2,7 +2,6 @@ package http
 
 import (
 	"chapar/internals/core/domain"
-	"chapar/internals/core/ports"
 	"encoding/json"
 	"log"
 	"strconv"
@@ -27,14 +26,6 @@ const (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-}
-
-type HTTPServer struct {
-	innerBridges ports.InnerBridges
-}
-
-func NewHttpService(bridges ports.InnerBridges) HTTPServer {
-	return HTTPServer{innerBridges: bridges}
 }
 
 type WebsocketConnection struct {

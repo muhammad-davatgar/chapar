@@ -16,8 +16,8 @@ type HubUser struct {
 }
 
 type EntryCredentials struct {
-	UserName string `validate:"required,min=3"`
-	PassWord string `validate:"required,min=8"`
+	UserName string `validate:"required,min=3" json:"user_name"`
+	PassWord string `validate:"required,min=8" json:"password"`
 }
 
 func (v *Validator) Credentials(d EntryCredentials) (Credentials, error) {

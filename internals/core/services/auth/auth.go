@@ -11,6 +11,10 @@ type AuthenticationService struct {
 	validator *domain.Validator
 }
 
+func NewAuthenticationService(userDB ports.UserDB) AuthenticationService {
+	return AuthenticationService{userDB: userDB, validator: domain.NewValidator()}
+}
+
 func (s *AuthenticationService) SignUp(entryCredentials domain.EntryCredentials) (string, error) {
 	credentials, err := s.validator.Credentials(entryCredentials)
 	if err != nil {
